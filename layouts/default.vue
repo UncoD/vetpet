@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Header />
     <Nuxt />
   </div>
 </template>
@@ -58,5 +59,25 @@ html {
 .button--grey:hover {
   color: #fff;
   background-color: #35495e;
+}
+
+.container {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.btn:focus {
+  box-shadow: none;
+}
+
+.table thead th, .table td {
+  vertical-align: middle;
+}
+
+.table thead th:focus {
+  outline: none;
 }
 </style>

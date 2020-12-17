@@ -37,6 +37,10 @@ export default {
     '@nuxtjs/axios'
   ],
 
+  bootstrapVue: {
+    icons: true
+  },
+
   serverMiddleware: {
     '/api': '~/server'
   },
