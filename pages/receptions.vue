@@ -43,8 +43,25 @@
       >
         Сформировать отчет
       </b-button>
+      <b-button
+        v-if="isRecipeView"
+        variant="primary"
+        class="back-btn"
+        @click="isRecipeView = false"
+      >
+        <b-icon icon="chevron-left" />
+      </b-button>
     </b-form-group>
-    <b-table striped bordered :items="items" :fields="fields" />
+    <b-table v-if="isRecipeView" striped bordered :items="recipeItems" :fields="recipeFields" />
+    <b-table
+      v-else
+      striped
+      bordered
+      class="reception-table"
+      :items="items"
+      :fields="fields"
+      @row-clicked="item=>onRowClick(item.reception)"
+    />
   </div>
 </template>
 
@@ -61,6 +78,7 @@ export default {
   data () {
     return {
       items: [],
+      recipeItems: [],
       fields: [
         { key: 'date', label: 'Дата', sortable: true },
         { key: 'client', label: 'Владелец', sortable: true },
@@ -69,9 +87,15 @@ export default {
         { key: 'instruction', label: 'Инструкция', sortable: true },
         { key: 'cheque', label: 'Чек', sortable: true }
       ],
+      recipeFields: [
+        { key: 'medicine', label: 'Лекарство', sortable: true },
+        { key: 'quantity', label: 'Количество', sortable: true },
+        { key: 'cost', label: 'Стоимость', sortable: true }
+      ],
       searchClient: '',
       startDate: null,
-      endDate: null
+      endDate: null,
+      isRecipeView: false
     }
   },
   methods: {
@@ -81,6 +105,10 @@ export default {
         startDate: this.startDate,
         endDate: this.endDate
       })
+    },
+    async onRowClick (item) {
+      this.recipeItems = await this.$axios.$post('/api/get-reception-recipe', { id: item })
+      this.isRecipeView = true
     }
   }
 }
@@ -125,8 +153,12 @@ h4 {
   }
 
   .btn {
-    width: 300px;
+    width: 270px;
     height: 40px;
+  }
+  .back-btn {
+    margin-left: 15px;
+    width: 50px;
   }
 }
 .b-form-datepicker {
@@ -134,6 +166,11 @@ h4 {
 
   .btn {
     width: 50px;
+  }
+}
+.reception-table {
+  tr {
+    cursor: pointer;
   }
 }
 </style>

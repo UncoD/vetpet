@@ -13,6 +13,17 @@ const getClientReceptions = ({ id, startDate, endDate }) => new Promise((resolve
   })
 })
 
+const getReceptionRecipe = ({ id }) => new Promise((resolve, reject) => {
+  const query = 'SELECT * FROM recipe_sums WHERE reception = ?'
+
+  connecton.query(query, [id], (err, result) => {
+    if (err) { reject(err) } else {
+      resolve(result)
+    }
+  })
+})
+
 module.exports = {
-  getClientReceptions
+  getClientReceptions,
+  getReceptionRecipe
 }

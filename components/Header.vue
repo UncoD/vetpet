@@ -16,9 +16,9 @@
       Приемы
     </b-button>
     <b-button
-      href="#"
+      href="store"
     >
-      Поставщики
+      Склад
     </b-button>
   </div>
 </template>
