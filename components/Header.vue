@@ -11,9 +11,9 @@
       Питомцы
     </b-button>
     <b-button
-      href="#"
+      href="receptions"
     >
-      Склад
+      Приемы
     </b-button>
     <b-button
       href="#"

@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const clients = require('./clients')
 const pets = require('./pets')
+const receptions = require('./receptions')
 
 const app = express()
 
@@ -57,6 +58,12 @@ app.post('/delete-pet', (req, res) => {
 
 app.post('/get-client-pets', (req, res) => {
   pets.getPetByClientName(req.body)
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.post('/get-client-receptions', (req, res) => {
+  receptions.getClientReceptions(req.body)
     .then(result => res.status(200).json(result))
     .catch(error => res.status(400).json(error))
 })

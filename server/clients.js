@@ -22,7 +22,7 @@ const addClient = ({ name, phone, address }) => new Promise((resolve, reject) =>
   const query = 'INSERT INTO clients (name,phone,address) VALUES (?,?,?)'
   connecton.query(query, [name, phone, address], (err, result) => {
     if (err) { reject(err) } else {
-      resolve()
+      resolve(result)
     }
   })
 })

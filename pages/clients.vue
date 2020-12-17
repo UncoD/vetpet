@@ -108,6 +108,32 @@
             maxlength="200"
           />
         </b-form-group>
+        <b-form-group
+          label="Добавить питомца"
+        >
+          <b-form-group
+            id="pets-input"
+          >
+            <b-form-group
+              label="Кличка"
+              label-for="add-pet-name"
+            >
+              <b-form-input
+                id="add-pet-name"
+                v-model="petForAdd.name"
+              />
+            </b-form-group>
+            <b-form-group
+              label="Вид"
+              label-for="add-pet-kind"
+            >
+              <b-form-input
+                id="add-pet-kind"
+                v-model="petForAdd.kind"
+              />
+            </b-form-group>
+          </b-form-group>
+        </b-form-group>
       </form>
     </b-modal>
     <b-modal
@@ -143,7 +169,12 @@ export default {
         address: ''
       },
       newClientState: null,
-      deleteClientIndex: null
+      deleteClientIndex: null,
+      petForAdd: {
+        name: '',
+        kind: '',
+        client_id: 0
+      }
     }
   },
   mounted () {
@@ -178,6 +209,8 @@ export default {
       this.newClient.name = ''
       this.newClient.phone = ''
       this.newClient.address = ''
+      this.petForAdd.name = ''
+      this.petForAdd.kind = ''
       this.newClientState = null
     },
     handleOk (bvModalEvt) {
@@ -189,8 +222,13 @@ export default {
         return
       }
 
-      await this.$axios.$post('/api/add-client', this.newClient)
+      const response = await this.$axios.$post('/api/add-client', this.newClient)
       this.clients = await this.$axios.$get('/api/get-clients')
+
+      if (this.petForAdd.name !== '') {
+        this.petForAdd.client_id = response.insertId
+        await this.$axios.$post('/api/add-pet', this.petForAdd)
+      }
 
       this.$nextTick(() => {
         this.$bvModal.hide('modal-add-client')
