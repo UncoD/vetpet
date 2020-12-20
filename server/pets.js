@@ -46,10 +46,20 @@ const getPetByClientName = ({ name }) => new Promise((resolve, reject) => {
   })
 })
 
+const getPetByClientId = ({ id }) => new Promise((resolve, reject) => {
+  const query = 'SELECT id, name FROM pets WHERE client_id = ?'
+  connecton.query(query, [id], (err, result) => {
+    if (err) { reject(err) } else {
+      resolve(result)
+    }
+  })
+})
+
 module.exports = {
   getAllPets,
   updatePet,
   addPet,
   deletePet,
-  getPetByClientName
+  getPetByClientName,
+  getPetByClientId
 }

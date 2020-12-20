@@ -63,6 +63,12 @@ app.post('/get-client-pets', (req, res) => {
     .catch(error => res.status(400).json(error))
 })
 
+app.post('/get-client-pets-by-id', (req, res) => {
+  pets.getPetByClientId(req.body)
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
 app.post('/get-client-receptions', (req, res) => {
   receptions.getClientReceptions(req.body)
     .then(result => res.status(200).json(result))
@@ -83,6 +89,18 @@ app.get('/get-medicines', (req, res) => {
 
 app.post('/get-order-info', (req, res) => {
   store.getOrderInfo(req.body)
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.get('/get-receptions', (req, res) => {
+  receptions.getAllReceptions()
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.post('/add-reception', (req, res) => {
+  receptions.addReception(req.body)
     .then(result => res.status(200).json(result))
     .catch(error => res.status(400).json(error))
 })

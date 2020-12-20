@@ -86,7 +86,14 @@
             :reduce="client => client.id"
             label="name"
             @input="selectClientForPet"
-          />
+          >
+            <template v-slot:option="option">
+              <div>{{ option.name }}</div>
+              <div class="client-phone">
+                {{ option.phone }}
+              </div>
+            </template>
+          </v-select>
         </b-form-group>
         <b-form-group
           label="Кличка"
@@ -224,18 +231,6 @@ export default {
 </script>
 
 <style lang="scss">
-.table {
-  margin-top: 30px;
-
-  td input {
-    width: 100%;
-  }
-
-  th:last-child, td:last-child {
-    text-align: center;
-    width: 130px;
-  }
-}
 .search {
   margin-top: 30px;
   width: 300px;
@@ -244,5 +239,21 @@ export default {
   div {
     display: flex;
   }
+}
+.table {
+  td input {
+    width: 100%;
+  }
+  th:last-child, td:last-child {
+    text-align: center;
+    width: 130px;
+  }
+}
+.client-phone {
+  font-size: 15px;
+  color: #3c3c3c80;
+}
+.vs__dropdown-option--highlight .client-phone {
+  color: #ebebeb;
 }
 </style>

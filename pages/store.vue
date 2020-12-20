@@ -61,8 +61,8 @@ export default {
         { key: 'name', label: 'Название', sortable: true },
         { key: 'description', label: 'Описание', sortable: true },
         { key: 'quantity', label: 'На складе', sortable: true },
-        { key: 'sell_price', label: 'Цена продажи (руб.)', sortable: true },
-        { key: 'buy_price', label: 'Цена покупки (руб.)', sortable: true }
+        { key: 'sell_price', label: 'Цена продажи (₽)', sortable: true },
+        { key: 'buy_price', label: 'Цена покупки (₽)', sortable: true }
       ],
       needFields: [
         { key: 'name', label: 'Поставщик', sortable: true },
