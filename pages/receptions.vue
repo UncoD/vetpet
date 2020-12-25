@@ -58,19 +58,12 @@
       >
         <b-icon icon="plus" />
       </b-button>
-      <b-button
-        v-b-modal.modal-add-client
-        :variant="editActive ? 'secondary' : 'outline-secondary'"
-        @click="setEditActive"
-      >
-        <b-icon icon="pencil-square" />
-      </b-button>
-      <b-button
+      <!-- <b-button
         v-b-modal.modal-add-client
         variant="primary"
       >
         Фильтры
-      </b-button>
+      </b-button> -->
     </div>
     <b-table
       striped
@@ -80,39 +73,25 @@
       :fields="fields"
       @row-clicked="onRowClick"
     >
-      <template v-if="editActive" #cell(edit)="data">
-        <b-button
-          variant="primary"
-          :disabled="editInd !== -1 && editInd !== data.index"
-          @click="editInd = editInd === data.index ? -1 : data.index"
-        >
-          <b-icon
-            v-if="editInd === -1 || editInd !== data.index"
-            icon="pencil-square"
-          />
-          <b-icon
-            v-else
-            icon="check2"
-          />
-        </b-button>
-        <b-button
-          v-b-modal.modal-delete-client
-          variant="danger"
-          @click="deleteClientIndex = data.item.id"
-        >
-          <b-icon icon="trash" />
-        </b-button>
-      </template>
       <template slot="row-details" slot-scope="row">
         <b-card>
           <b-table
-            v-if="recipeItems[row.item.reception] && recipeItems[row.item.reception].length > 0"
+            v-if="medicineItems[row.item.reception] && medicineItems[row.item.reception].length > 0"
             class="inner-table"
             fixed
             small
             bordered
-            :items="recipeItems[row.item.reception]"
-            :fields="recipeFields"
+            :items="medicineItems[row.item.reception]"
+            :fields="medicineFields"
+          />
+          <b-table
+            v-if="serviceItems[row.item.reception] && serviceItems[row.item.reception].length > 0"
+            class="inner-table"
+            fixed
+            small
+            bordered
+            :items="serviceItems[row.item.reception]"
+            :fields="serviceFields"
           />
           <p>Стоимость приема: {{ row.item.rec_cost }}₽</p>
         </b-card>
@@ -202,6 +181,14 @@
             </b-button>
           </template>
         </b-table>
+        <b-form-group label="Услуги">
+          <v-select
+            v-model="newRec.services"
+            :options="services"
+            label="name"
+            multiple
+          />
+        </b-form-group>
         <b-form-group label="Инструкция">
           <b-form-textarea v-model="newRec.instruction" />
         </b-form-group>
@@ -220,11 +207,14 @@ export default {
     const medicines = await $axios.$get('/api/get-medicines')
     const clients = await $axios.$get('/api/get-clients')
     const receptions = await $axios.$get('/api/get-receptions')
-    return { clients, receptions, medicines }
+    const services = await $axios.$get('/api/get-services')
+
+    return { clients, receptions, medicines, services }
   },
   data () {
     return {
-      recipeItems: {},
+      medicineItems: {},
+      serviceItems: {},
       pets: [],
       fields: [
         {
@@ -251,10 +241,14 @@ export default {
         { key: 'instruction', label: 'Инструкция', sortable: true },
         { key: 'cheque', label: 'Чек (₽)', sortable: true }
       ],
-      recipeFields: [
+      medicineFields: [
         { key: 'medicine', label: 'Лекарство', sortable: true },
         { key: 'quantity', label: 'Количество', sortable: true },
         { key: 'cost', label: 'Стоимость (₽)', sortable: true }
+      ],
+      serviceFields: [
+        { key: 'name', label: 'Название', sortable: true },
+        { key: 'price', label: 'Цена (₽)', sortable: true }
       ],
       newRecMedFields: [
         { key: 'name', label: 'Название' },
@@ -265,15 +259,14 @@ export default {
       searchClient: '',
       startDate: null,
       endDate: null,
-      editActive: false,
-      editInd: -1,
       newRec: {
         clientId: null,
         petId: null,
         cost: 0,
-        instruction: null,
+        instruction: '',
         medicines: null,
-        needMedCount: {}
+        needMedCount: {},
+        services: null
       },
       newRecState: null
     }
@@ -287,17 +280,11 @@ export default {
       })
     },
     async onRowClick (row) {
-      this.recipeItems[row.reception] = await this.$axios.$post('/api/get-reception-recipe', { id: row.reception })
-      this.$set(row, '_showDetails', !row._showDetails)
-    },
-    setEditActive () {
-      if (this.editActive) {
-        this.editActive = false
-        this.fields.pop()
-      } else {
-        this.editActive = true
-        this.fields.push({ key: 'edit', label: '' })
+      if (!row._showDetails) {
+        this.medicineItems[row.reception] = await this.$axios.$post('/api/get-reception-recipe', { id: row.reception })
+        this.serviceItems[row.reception] = await this.$axios.$post('/api/get-reception-service', { id: row.reception })
       }
+      this.$set(row, '_showDetails', !row._showDetails)
     },
     async getPets (id) {
       this.pets = await this.$axios.$post('/api/get-client-pets-by-id', { id: this.newRec.clientId })
@@ -320,9 +307,10 @@ export default {
         clientId: null,
         petId: null,
         cost: 0,
-        instruction: null,
+        instruction: '',
         medicines: null,
-        needMedCount: {}
+        needMedCount: {},
+        services: null
       }
       this.newRec.needMedCount = {}
       this.newRecState = null
@@ -345,7 +333,8 @@ export default {
         pet_id: this.newRec.petId,
         rec_cost: this.newRec.cost,
         instruction: this.newRec.instruction,
-        medicines: this.newRec.needMedCount
+        medicines: this.newRec.needMedCount,
+        services: this.newRec.services
       })
 
       this.receptions = await this.$axios.$get('/api/get-receptions')
@@ -424,12 +413,24 @@ export default {
 .inner-table {
   tr {
     cursor: default;
+
+    td {
+      padding-left: 10px;
+      padding-right: 10px;
+
+      &:first-child {
+        text-align: left;
+      }
+    }
+    td::first-letter {
+      text-transform: uppercase;
+    }
   }
   thead tr:nth-of-type(odd) {
     background: white;
   }
   th:last-child, td:last-child {
-    width: 200px;
+    width: auto;
   }
 }
 .client-phone {

@@ -24,6 +24,11 @@
       Приемы
     </b-button>
     <b-button
+      href="services"
+    >
+      Услуги
+    </b-button>
+    <b-button
       href="store"
     >
       Склад
@@ -51,6 +56,9 @@ export default {
         break
       case '/store':
         this.header = 'Склад клиники'
+        break
+      case '/services':
+        this.header = 'Услуги клиники'
         break
     }
   }

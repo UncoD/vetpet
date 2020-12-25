@@ -28,6 +28,15 @@ const addPet = ({ name, kind, client_id }) => new Promise((resolve, reject) => {
   })
 })
 
+const getPetsCount = () => new Promise((resolve, reject) => {
+  const query = 'SELECT COUNT(*) as count FROM pets'
+  connecton.query(query, (err, result) => {
+    if (err) { reject(err) } else {
+      resolve(result)
+    }
+  })
+})
+
 const deletePet = ({ id }) => new Promise((resolve, reject) => {
   const query = 'DELETE FROM pets WHERE id = ?'
   connecton.query(query, [id], (err, result) => {
@@ -61,5 +70,6 @@ module.exports = {
   addPet,
   deletePet,
   getPetByClientName,
-  getPetByClientId
+  getPetByClientId,
+  getPetsCount
 }

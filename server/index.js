@@ -4,6 +4,8 @@ const clients = require('./clients')
 const pets = require('./pets')
 const receptions = require('./receptions')
 const store = require('./store')
+const services = require('./services')
+const analysis = require('./analysis')
 
 const app = express()
 
@@ -81,6 +83,12 @@ app.post('/get-reception-recipe', (req, res) => {
     .catch(error => res.status(400).json(error))
 })
 
+app.post('/get-reception-service', (req, res) => {
+  receptions.getReceptionService(req.body)
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
 app.get('/get-medicines', (req, res) => {
   store.getMedicines()
     .then(result => res.status(200).json(result))
@@ -101,6 +109,54 @@ app.get('/get-receptions', (req, res) => {
 
 app.post('/add-reception', (req, res) => {
   receptions.addReception(req.body)
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.post('/get-med-by-prov-and-quant', (req, res) => {
+  store.getMedByProvAndQuant(req.body)
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.post('/order-medicines', (req, res) => {
+  store.orderMedicines(req.body)
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.get('/get-clients-count', (req, res) => {
+  clients.getClientsCount()
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.get('/get-pets-count', (req, res) => {
+  pets.getPetsCount()
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.post('/get-clients-serve-count', (req, res) => {
+  clients.getClientsServeCount(req.body)
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.post('/get-orders-after-date', (req, res) => {
+  store.getOrdersAfterDate(req.body)
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.get('/get-services', (req, res) => {
+  services.getServices()
+    .then(result => res.status(200).json(result))
+    .catch(error => res.status(400).json(error))
+})
+
+app.post('/get-provided-services', (req, res) => {
+  analysis.getProvidedServices()
     .then(result => res.status(200).json(result))
     .catch(error => res.status(400).json(error))
 })
