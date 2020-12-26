@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h3>Анализ клиентской базы</h3>
-    <h4>Клиентское пользование услугами ветклиники</h4>
+    <h4>Клиентское пользование услугами ветклиники (₽)</h4>
     <b-form-group label="Выберите тип среза" class="slice-types">
       <b-form-radio v-model="sliceType" name="slice-type" value="D" @change="changeSliceType">Срез по дате</b-form-radio>
       <b-form-radio v-model="sliceType" name="slice-type" value="S" @change="changeSliceType">Срез по услуге</b-form-radio>
@@ -48,13 +48,6 @@
       <h6 v-if="sliceClient">Клиент: {{ sliceClient.name }}</h6>
       <b-table small bordered :items="items" :fields="sliceService ? dateFields : servicesFields" />
     </div>
-    <b-table
-      class="services-table"
-      fixed
-      small
-      bordered
-      :items="provided"
-    />
   </div>
 </template>
 
@@ -116,16 +109,46 @@ export default {
           client: groupByClient[c][0].client, ...groupByService
         })
       }
+      this.servicesFields[0] = [{ key: 'client', label: 'Клиент' }]
     },
     getSliceByClient (slice) {
       this.items = []
+      const nSlice = slice.map(s => Object.assign({ ...s, date: this.formatDate(new Date(s.date)) }))
+      const groupByMonth = _.groupBy(nSlice, 'date')
+      for (const m in groupByMonth) {
+        const groupByClient = _.groupBy(groupByMonth[m], 'client_id')
+        if (!groupByClient[this.sliceClient.id]) {
+          this.items.push({ date: m })
+          continue
+        }
+        const result = Object.fromEntries(groupByClient[this.sliceClient.id]
+          .map(c => [c.service_id, c.cost])
+        )
+        this.items.push({ date: m, ...result })
+      }
+      this.servicesFields[0] = [{ key: 'date', label: 'Месяц' }]
     },
     getSliceByService (slice) {
       this.items = []
-      const groupByMonth = _.groupBy(slice.map(s => Object.assign({ date: this.formatDate(new Date(s.date)) })), 'date')
-      console.log(groupByMonth)
+      const nSlice = slice.map(s => Object.assign({ ...s, date: this.formatDate(new Date(s.date)) }))
+      const groupByMonth = _.groupBy(nSlice, 'date')
       this.dateFields = [{ key: 'client', label: 'Клиент' }].concat(Object.keys(groupByMonth))
-      console.log(this.dateFields)
+
+      const groupByClient = _.groupBy(nSlice, 'client_id')
+      for (const c in groupByClient) {
+        const groupByDate = _.groupBy(groupByClient[c], 'date')
+        const result = Object.fromEntries(
+          Object.entries(groupByDate)
+            .map((s) => {
+              const service = s[1].find(k => k.service_id === this.sliceService.id)
+              if (!service) { return [s[0], null] }
+              return [s[0], service.cost]
+            })
+        )
+        this.items.push({
+          client: groupByClient[c][0].client, ...result
+        })
+      }
     },
     makeItems () {
       const endDate = new Date(this.timeRange[1])
@@ -142,6 +165,7 @@ export default {
           this.getSliceByClient(defaultSlice)
           break
       }
+      console.log(JSON.stringify(this.items))
     },
     changeSliceType () {
       this.items = []

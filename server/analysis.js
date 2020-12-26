@@ -3,7 +3,8 @@ const connecton = require('./db')
 
 const getProvidedServices = () => new Promise((resolve, reject) => {
   const query = `select r.\`date\` as \`date\`,
-                    c.id as client_id, c.name as client, s.id as service_id, s.name as service, sum(s.price) as cost, count(s.price)
+                    c.id as client_id, c.name as client, s.id as service_id,
+                    s.name as service, sum(s.price) as cost, count(s.price) as count
                   from receptions r
                   join service_items si on r.id = si.reception_id
                   join services s join pets p join clients c
